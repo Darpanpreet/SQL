@@ -1,0 +1,245 @@
+CREATE DATABASE Employee
+
+/*1.Create department table with following columns.
+Dept_id --Data Type: Integer Primary key,
+D_Name --Data Type: NVARCHAR (100) Not null, 
+Contact_no --Data Type: Integer Unique
+*/
+
+CREATE Table Department
+(Dept_id Integer Primary key, 
+D_Name NVARCHAR (100) Not null, 
+Contact_no Integer Unique
+);
+
+/*2.Create employee table with following columns
+Emp_id --Data Type: Integer (Primary Key),
+Dept_id --Data Type: Integer (Foreign Key), 
+Emp_name --Data Type: NVARCHAR (100),
+Designation --Data Type: NVARCHAR (100) 
+Salary --Data Type: Money
+*/
+Create Table employee
+(Emp_id Integer Primary Key,
+ Dept_id Integer,
+ Emp_name NVARCHAR (100),
+ Designation NVARCHAR (100),
+ Salary Money
+);
+
+Alter table employee
+ADD Constraint fk_Dept_id
+Foreign Key (Dept_id)
+References employee (Emp_id);
+
+--ADD A NEW CLOUMN IN DEPARTMENT TABLEColumn –CityData Type –NVARCHAR (50)
+
+
+Alter table Department ADD City NVARCHAR(50);
+
+--CHANGE THE DATATYPE OF SALARY TO CHAR(10) IN EMPLOYEEData Type: Change from Money to Char (10);
+
+
+ALter table employee ALter Column Salary Char(10);
+
+--.DELETE THE ‘CITY’ COLUMN FROM THE DEPARTMENT TABLE Column: City
+
+Alter table Department Drop Column City
+
+--RENAME A COLUMN(D_NAME) IN DEPARTENT TABLE to (Dept_NAME)
+Select * from Department
+
+EXEC sp_rename 'Department.D_name', 'Dept_NAME','Column';
+
+--Insert Values in employee table as per table below.
+
+Select * from employee
+
+Alter table employee
+Add Contact_no nvarchar(50), City nvarchar(25)
+
+Insert into employee (Emp_id,Dept_id,Emp_name,Designation,Salary,Contact_no,City)
+Values 
+(1,1,'S Ahmad','Sales Mgr',50000,0110,'New Delhi'),
+(2,2,'Anand','Senior Mgr',40000,0111,'New Delhi'),
+(3,3,'Aruna','Accounts Mgr',45000,0112,'New Delhi'),
+(4,3,'Alpesh','Accountant',35000,0113,'Bangalore'),
+(5,1,'Monica','Incharge',25000,0114,'Noida'),
+(6,1,'Harish','Sales Man',15000,0115,'Bangalore');
+
+--.Update the Contact_No of employee who stays in ‘Bangalore’ and id = 6
+Update employee set City = 'Pune' where Emp_id=6;
+
+/*.Select given selective columns from employee table.
+EMP_ID
+EMP_NAME
+DESIG
+*/
+
+Select Emp_id,Emp_name,Designation from employee
+
+--Select alldetails of employee whose salary is greater than 30000.
+
+Select * from employee where Salary>30000
+
+--Select details of employee whose salary is between 15000 and 30000
+
+Select * from employee where Salary>15000 AND Salary<30000
+
+--Select * from employee who lives in ‘Bangalore’ or ‘New Delhi’
+
+Select * from employee where Designation = 'Bangalore' OR Designation= 'New Delhi'
+
+--Select * from employee who do not stay in cities ‘Bangalore’ and ‘New Delhi’
+
+Select * from employee where Designation != 'Bangalore' OR Designation= 'New Delhi'
+
+--Select details of employee whose name starts with character ‘A’
+
+Select * from employee where Emp_name like 'A%'
+
+--Arrange the details of employee in descending order of their salary.
+
+Select * from employee order by Salary DESC
+
+--Retrieve the average salary of employee per department.
+
+ALter table employee ALter Column Salary Money;
+Select AVG(Salary) as avg_salary_1 from employee Where Dept_id = 1
+Select AVG(Salary) as avg_salary_2 from employee Where Dept_id = 2
+Select AVG(Salary) as avg_salary_3 from employee Where Dept_id = 3
+
+--Get the details of Employee( dept_id, Salary) and its average salary whose average salary is greater than 30000
+
+SELECT dept_id, Salary, AVG(Salary) AS avg_salary
+FROM employee
+GROUP BY dept_id, Salary
+HAVING AVG(Salary) > 30000;
+
+-------------------------------------------------------------------
+
+/*Step1. Create Company Table Columns
+a.Emp_id –Data Type IntegerName NVARCHAR (50), 
+Age –Data Type: Integer,
+Address –Data Type: NVARCHAR (50),
+Salary –Data Type: Numeric (8, 2),
+Joindate –Date Type: Date
+*/
+
+Create Database Company
+Create Database Dept
+
+use Company
+Create table Company
+(Emp_id Integer,
+Name NVARCHAR (50),
+Age Integer,
+Address NVARCHAR (50),
+Salary Numeric (8, 2),
+Joindate Date);
+
+--Step2. Insert below data in Company Table.
+
+Insert into Company
+Values
+(1,'PAUL',32,'CALIFORNIA',20000.00,'2001-07-13'),
+(4,'DAVID',25,'RICHMOND',65000.00,'2010-10-25'),
+(5,'MARK',27,'TEXAS',35000.00,'2015-11-02');
+
+Insert into Company(Emp_id,Name,Age,Address,Joindate) Values
+(2,'TEDDY',25,'LAS VEGAS','2013-09-01');
+
+Insert into Company(Emp_id,Name,Age,Address,Salary) Values
+(3,'ALLEN',23,'NORWAY',20000);
+
+Select * from Company
+
+/*Step3. Create Dept Table, Columns :
+a.Id –Data Type: Integer, 
+b.Dept --Data Type: NVARCHAR(20)
+c.emp_id –Data Type: Integer
+*/
+
+Create Table Dept
+(Id Integer,
+Dept NVARCHAR(20),
+Emp_id Integer
+);
+
+--Step4. Insert below data in dept table
+
+Insert into Dept
+values 
+(1,'IT BILLING',1),
+(2,'ENGINEERING',2),
+(3,'FINANCE',41);
+
+
+SELECT * FROM Company
+SELECT * FROM Dept
+
+/*.Query1. Fetch following details for employee with id = 2 
+Emp_Id
+Name
+Dept
+Dept_Id
+Age
+Salary
+*/
+
+Select Dept.Emp_id,Company.Name,Dept.Dept,Dept.Id,Company.Age,Company.Salary
+from Company
+Inner join Dept
+ON Company.Emp_id = Dept.Emp_id
+Where Dept.Id = 2
+Order By Company.Emp_id;
+
+/*Create a stored procedure to fetch following columns from Company and Dept2 table based on a given emp id.
+Emp_Id
+Name
+Dept ,
+Dep_Id,
+Age
+Salary
+*/
+
+CREATE PROCEDURE GetEmployeeDetails
+    @EmployeeID INT
+AS
+BEGIN
+    SELECT
+        c.Emp_Id,
+        c.Name,
+		d.Dept,
+        d.Id,
+        c.Age,
+        c.Salary
+    FROM
+        Company c
+    INNER JOIN Dept d
+	ON c.Emp_Id = d.Emp_Id
+    WHERE
+        c.Emp_Id = @EmployeeID
+	Order by c.Emp_id
+	END;
+
+EXEC GetEmployeeDetails @EmployeeID= 2;
+
+--Create a view to fetch the details of employee with following columns: Emp_Id, Name, Dept , Dep_Id, Age, Salary
+
+Create View Details
+AS
+Select
+   c.Emp_id,
+   c.Name,
+   d.Dept,
+   d.Id,
+   c.Age,
+   c.Salary
+From 
+ Company c
+Full join Dept d
+On c.Emp_id= d.Emp_id;
+
+Select * from Details;
+
